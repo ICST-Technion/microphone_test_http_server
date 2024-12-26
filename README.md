@@ -7,6 +7,8 @@ https://github.com/lacamera/ESPAsyncWebServer
 
 use ESP32 SDK version 2.0.17 (because of incompatibility of ESPAsyncWebServer with newer SDK versions)
 
+In the included test file you can hear me speaking at 3 distances - 50cm, 25cm and 5cm from the microphone.
+
 TODO: There is some bug with corrupted WAV header. After recording and downloading an audio file, if you want to repeat, unplug ESP32 , wait 3 seconds and plug back in.
 If your file still cannot be opened in phone/Windows due to corrupted header, open the file in Audacity (open source software) using File-->Import-->Raw Data , and choose  the following settings - 
 
