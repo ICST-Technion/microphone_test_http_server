@@ -7,6 +7,8 @@ https://github.com/lacamera/ESPAsyncWebServer
 
 use ESP32 SDK version 2.0.17 (because of incompatibility of ESPAsyncWebServer with newer SDK versions)
 
+In the included test file you can hear me speaking at 3 distances - 50cm, 25cm and 5cm from the microphone.
+
 How to use - 
  - Enter your WIFI SSID and password in the code
  - Run the code, when connected the ESP32 will display IP address
