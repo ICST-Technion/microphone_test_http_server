@@ -2,11 +2,10 @@ this test records audio from I2S microphone model INMP441 , and allows you to do
 
 **Uses no audio library, only the built-in I2S library**. The audio is encoded as WAV file not as MP3, there is a limit on the maximum recording time, about 35 seconds. Recordings of up to 10 seconds are recommended for testing.
 
-dependencies -install ESPAsyncWebServer by lacamera V3.1.0
-https://github.com/lacamera/ESPAsyncWebServer
+dependencies -install ESP Async WebServer by ESP32ASYNC
+https://github.com/ESP32Async/ESPAsyncWebServer
 
-use ESP32 SDK version 2.0.17 (because of incompatibility of ESPAsyncWebServer with newer SDK versions)
-
+tested with ESP32 SDK V3.3.6
 In the included test file you can hear me speaking at 3 distances - 50cm, 25cm and 5cm from the microphone.
 
 How to use - 
@@ -18,7 +17,18 @@ How to use -
  - click "download file"
 
 
-TODO: There is some bug with corrupted WAV header. After recording and downloading an audio file, if you want to repeat, unplug ESP32 , wait 3 seconds and plug back in.
+Connections - 
+- WS to GPIO32
+- SD to GPIO25
+- SCK to GPIO33
+- GND to GND
+- VCC to 3.3V
+- L/R pin keep unconnected or connect to 3.3V (left channel mode)
+
+Known issues: 
+
+Sometimes there can be a corrupted WAV header. After recording and downloading an audio file, if you want to repeat, restart the board. 
+
 If your file still cannot be opened in phone/Windows due to corrupted header, open the file in Audacity (open source software) using File-->Import-->Raw Data , and choose  the following settings - 
 
 - Encoding: Signed 16-bit PCM

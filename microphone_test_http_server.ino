@@ -1,7 +1,7 @@
 #include <driver/i2s.h>
 #include <LittleFS.h>
 #include <FS.h>
-// #include <WiFi.h>
+#include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include "html_page.h"  // Include the HTML file
 
@@ -178,11 +178,7 @@ void loop() {
 
         // Right-align the 24-bit sample from I2S
         sample = sample >> 11;
-        // sample = sample / 2048;
-        // Clamp to 16-bit range
-        // if (sample > 32767) sample = 32767;
-        // if (sample < -32768) sample = -32768;
-
+        // Sign-extend to 32 bits
         if (sample & 0x8000) {
           sample |= 0xFFFF0000;
         }
@@ -224,7 +220,7 @@ esp_err_t i2s_install() {
     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
     .sample_rate = SAMPLE_RATE,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
-    .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
+    .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
     .communication_format = (i2s_comm_format_t)(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
     .intr_alloc_flags = 0,
     .dma_buf_count = 8,
