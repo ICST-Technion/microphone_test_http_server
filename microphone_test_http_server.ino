@@ -14,8 +14,8 @@
 #define bufferLen 256
 
 // WiFi credentials
-const char *ssid = "XXXXXXXX";
-const char *password = "XXXXXXXX";
+const char *ssid = "XXXXXXXXX";
+const char *password = "XXXXXXXXX";
 
 // Global variables
 int32_t sBuffer[bufferLen];
@@ -56,7 +56,7 @@ void setup() {
   if (LittleFS.format()) {
     Serial.println("LittleFS formatted successfully");
   }
-  
+
 
   // Add debug info about available space
   Serial.printf("Total space: %lu bytes\n", LittleFS.totalBytes());
@@ -142,23 +142,34 @@ void startRecording() {
 
 void stopRecording() {
   if (isRecording && wavFile) {
+    isRecording = false;
+    wavFile.flush(); 
     unsigned long fileSize = wavFile.size();
     Serial.printf("Recording stopped. File size before header update: %lu bytes\n", fileSize);
 
     updateWavHeader(wavFile, fileSize);
+    
+    // NOW close the file after header is updated
     wavFile.close();
 
-    // Verify the file
+    // Verify the file AFTER closing by reopening it
     File readFile = LittleFS.open("/recording.wav", "r");
     if (readFile) {
       Serial.printf("Final file size: %lu bytes\n", readFile.size());
+      
+      Serial.println("Recording stopped, header contents:");
+      byte header[44];
+      readFile.read(header, 44);
+      for (int i = 0; i < 44; i++) {
+        Serial.printf("%02X ", header[i]);
+        if ((i+1)%16 == 0) Serial.println();
+      }
+      Serial.println();
+      
       readFile.close();
     } else {
       Serial.println("Failed to verify final file");
     }
-
-    isRecording = false;
-    Serial.println("Recording stopped");
   }
 }
 
@@ -204,11 +215,11 @@ void loop() {
       }
 
       size_t bytesWritten = wavFile.write((const uint8_t *)outputBuffer, bufferLen * sizeof(int16_t));
-      totalWritten+=bytesWritten;
+      totalWritten += bytesWritten;
       if (millis() - lastPrint > 500) {
         Serial.printf("Bytes written: %d\n", totalWritten);
         lastPrint = millis();
-        totalWritten=0;
+        totalWritten = 0;
       }
     }
   }
@@ -296,13 +307,30 @@ void writeWavHeader(File file, int sampleRate, int bitsPerSample, int numChannel
 }
 
 void updateWavHeader(File file, unsigned long fileSize) {
+  Serial.println("Updating WAV header...");
   if (!file) return;
+  Serial.printf("file size: %lu bytes\n", fileSize);
+  
+  // Print current header for debugging
+  file.seek(0);
+  byte header[44];
+  file.read(header, 44);
+  Serial.println("Current WAV header BEFORE update (offset | hex values):");
+
+  for (int i = 0; i < 44; i += 16) {
+    Serial.printf("%04X: ", i);
+    for (int j = 0; j < 16 && (i + j) < 44; j++) {
+      Serial.printf("%02X ", header[i + j]);
+    }
+    Serial.println();
+  }
+  Serial.println();
 
   uint32_t dataSize = fileSize - 44;
   uint32_t riffSize = fileSize - 8;
   byte sizeBuf[4];
 
-  // Update RIFF chunk size
+  // Update RIFF chunk size (at offset 4)
   sizeBuf[0] = riffSize & 0xFF;
   sizeBuf[1] = (riffSize >> 8) & 0xFF;
   sizeBuf[2] = (riffSize >> 16) & 0xFF;
@@ -311,7 +339,7 @@ void updateWavHeader(File file, unsigned long fileSize) {
   file.seek(4);
   file.write(sizeBuf, 4);
 
-  // Update data chunk size
+  // Update data chunk size (at offset 40)
   sizeBuf[0] = dataSize & 0xFF;
   sizeBuf[1] = (dataSize >> 8) & 0xFF;
   sizeBuf[2] = (dataSize >> 16) & 0xFF;
@@ -319,4 +347,9 @@ void updateWavHeader(File file, unsigned long fileSize) {
 
   file.seek(40);
   file.write(sizeBuf, 4);
+  
+  // CRITICAL: Flush to ensure writes are persisted
+  file.flush();
+  
+  Serial.println("WAV header updated and flushed");
 }
