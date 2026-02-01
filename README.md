@@ -25,11 +25,11 @@ Connections -
 - VCC to 3.3V
 - L/R pin keep unconnected or connect to 3.3V (left channel mode)
 
-Known issues: 
+Notes:
 
-Sometimes there can be a corrupted WAV header. After recording and downloading an audio file, if you want to repeat, restart the board. 
+Bugs can lead to a corrupted WAV header. Audio data is recorded correctly, but file will not open correctly by your default music player software.
 
-If your file still cannot be opened in phone/Windows due to corrupted header, open the file in Audacity (open source software) using File-->Import-->Raw Data , and choose  the following settings - 
+To play a file with corrupted header, open the file in Audacity (open source software) using File-->Import-->Raw Data , and choose  the following settings (or change according to your settings)- 
 
 - Encoding: Signed 16-bit PCM
 - Byte order: Default endianness
